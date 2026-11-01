@@ -1,0 +1,16 @@
+{
+  "name": "philoshelf",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "npm run build -w @philoshelf/client && npm run build -w @philoshelf/admin",
+    "test": "node --test apps/api/test.mjs"
+  },
+  "devDependencies": {}
+}
