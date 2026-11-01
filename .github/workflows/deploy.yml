@@ -14,10 +14,10 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '24'
           cache: npm
@@ -40,25 +40,37 @@ jobs:
           SSH_HOST: ${{ secrets.DEPLOY_HOST }}
           SSH_USER: ${{ secrets.DEPLOY_USER }}
         run: |
+          set -euo pipefail
           test -n "$SSH_KEY"
           test -n "$SSH_HOST"
           test -n "$SSH_USER"
           mkdir -p ~/.ssh
-          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 700 ~/.ssh
+          # GitHub secret bazen tek satırda \n kaçışlı gelir
+          printf '%s\n' "$SSH_KEY" | sed 's/\r$//' | sed 's/\\n/\n/g' > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
+          ssh-keygen -y -f ~/.ssh/deploy_key >/dev/null
           ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+          {
+            echo "Host philoshelf-deploy"
+            echo "  HostName ${SSH_HOST}"
+            echo "  User ${SSH_USER}"
+            echo "  IdentityFile ~/.ssh/deploy_key"
+            echo "  IdentitiesOnly yes"
+            echo "  PreferredAuthentications publickey"
+            echo "  PubkeyAuthentication yes"
+            echo "  PasswordAuthentication no"
+            echo "  StrictHostKeyChecking yes"
+            echo "  UserKnownHostsFile ~/.ssh/known_hosts"
+          } > ~/.ssh/config
+          chmod 600 ~/.ssh/config
+          ssh philoshelf-deploy 'echo ssh_ok'
 
       - name: Upload and activate
-        env:
-          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
-          SSH_USER: ${{ secrets.DEPLOY_USER }}
         run: |
+          set -euo pipefail
           RELEASE="$(date -u +%Y%m%dT%H%M%SZ)-${GITHUB_SHA::7}"
           REMOTE="/var/www/philoshelf/releases/$RELEASE"
-          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes \
-            "$SSH_USER@$SSH_HOST" "mkdir -p '$REMOTE'"
-          rsync -az --delete \
-            -e 'ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes' \
-            release-dist/ "$SSH_USER@$SSH_HOST:$REMOTE/"
-          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes \
-            "$SSH_USER@$SSH_HOST" "bash '$REMOTE/deploy/remote.sh' '$RELEASE'"
+          ssh philoshelf-deploy "mkdir -p '$REMOTE'"
+          rsync -az --delete -e 'ssh' release-dist/ "philoshelf-deploy:$REMOTE/"
+          ssh philoshelf-deploy "bash '$REMOTE/deploy/remote.sh' '$RELEASE'"
