@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import '../../../packages/ui/style.css';
+import {readApiResponse} from './response.mjs';
 
 const blank = {title: '', description: '', url: '', category: 'Keşfet', position: 0, active: true};
 const REFRESH_KEY = 'philoshelf.refresh';
@@ -32,7 +33,7 @@ function App() {
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({refreshToken: currentRefresh}),
     });
-    const d = await r.json();
+    const d = await readApiResponse(r);
     if (!r.ok) {
       saveTokens({});
       setConnected(false);
@@ -58,7 +59,7 @@ function App() {
       const nextAccess = await refreshAccess();
       r = await send(nextAccess);
     }
-    const d = await r.json();
+    const d = await readApiResponse(r);
     if (!r.ok) throw Error(d.error);
     return d;
   }
@@ -78,7 +79,7 @@ function App() {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({email, password}),
       });
-      const d = await r.json();
+      const d = await readApiResponse(r);
       if (!r.ok) throw Error(d.error || 'Giriş başarısız');
       saveTokens(d);
       setPassword('');
