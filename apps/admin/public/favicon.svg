@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Philoshelf">
+  <rect width="64" height="64" fill="#f4f1e9"/>
+  <circle cx="32" cy="32" r="26" fill="#284638"/>
+  <text
+    x="31"
+    y="44"
+    text-anchor="middle"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-style="italic"
+    font-size="42"
+    fill="#f2eedf"
+  >p</text>
+  <circle cx="50" cy="14" r="9" fill="#f4f1e9"/>
+  <g
+    fill="none"
+    stroke="#a5764b"
+    stroke-width="2"
+    stroke-linecap="round"
+    transform="translate(50 14) scale(0.55) translate(-12 -12)"
+  >
+    <path d="M12 2v20M2 12h20M5 5l14 14M5 19 19 5"/>
+  </g>
+</svg>
