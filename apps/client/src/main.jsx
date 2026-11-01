@@ -53,7 +53,7 @@ function App() {
         {error ? <div className="status" role="alert"><h2>Birazdan tekrar buluşalım.</h2><p>Bağlantılar şu anda yüklenemiyor.</p><button onClick={load}>Tekrar dene ↗</button></div>
           : loading ? <div className="skeleton-list" role="status" aria-label="Bağlantılar yükleniyor">{[1,2,3].map(i => <div className="skeleton" key={i}/> )}</div>
           : !data?.links.length ? <div className="status"><span className="status-star">✳</span><h2>Yeni fikirler yolda.</h2><p>Yazılar, okuma listeleri ve buluşmalar.<br/>Çok yakında, tam burada.</p></div>
-          : <div className="destination-list">{filtered.slice(page * pageSize, (page + 1) * pageSize).map((link, index) => <a className={'destination' + (page === 0 && index === 0 ? ' destination-featured' : '')} key={link.id} href={link.url} target="_blank" rel="noopener noreferrer" aria-label={`${link.title} — yeni sekmede açılır`}>
+          : <div className="destination-list">{filtered.slice(page * pageSize, (page + 1) * pageSize).map(link => <a className="destination" key={link.id} href={link.url} target="_blank" rel="noopener noreferrer" aria-label={`${link.title} — yeni sekmede açılır`}>
             <PlatformIcon url={link.url}/>
             <div className="destination-copy"><h2>{link.title}</h2><p>{link.description || destination(link.url)}</p></div>
             <span className="destination-arrow" aria-hidden="true">↗</span>
